@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,15 +20,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.app.newsites.R
 
 @Composable
-fun HomeScreen(
-    /*
-    navController: NavController,
-    viewModel: LoginViewModel = viewModel()
-    */
-) {
+fun HomeScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -72,17 +69,17 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
             }
+            Button(
+                onClick = { navController.navigate("sites") },
+                modifier = Modifier.padding(top = 32.dp)
+            ) {
+                Text(text = "Ir a Sites")
+            }
+
 
 
         }
     }
 
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewHomeScreen() {
-    HomeScreen()
 }

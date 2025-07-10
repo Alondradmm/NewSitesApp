@@ -55,6 +55,10 @@ dependencies {
 
     // Swipe
     implementation("me.saket.swipe:swipe:1.3.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    // Slide
+    implementation("me.saket.swipe:swipe:1.3.0")
+
 
 
     implementation(libs.androidx.core.ktx)

@@ -12,6 +12,7 @@ import com.app.newsites.ui.screen.home.HomeScreen
 import com.app.newsites.ui.screen.login.LoginScreen
 import com.app.newsites.ui.screen.login.LoginViewModel
 import com.app.newsites.ui.screen.register.RegisterScreen
+import com.app.newsites.ui.screen.sites.SitesScreen
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -27,10 +28,14 @@ fun AppNavigation(navController: NavHostController, userViewModel: LoginViewMode
             LoginScreen(navController = navController, viewModel = viewModel())
         }
         composable("home") {
-            HomeScreen(/*navController = navController, viewModel = viewModel()*/)
+            HomeScreen(navController = navController)
         }
         composable("register") {
             RegisterScreen(navController = navController, viewModel = viewModel())
+        }
+        composable("sites") {
+            SitesScreen(navController = navController, viewModel = viewModel())
+
         }
     }
 }
