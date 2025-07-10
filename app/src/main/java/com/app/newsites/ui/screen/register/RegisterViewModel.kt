@@ -31,7 +31,7 @@ class RegisterViewModel : ViewModel() {
         errorMessage = null
 
         viewModelScope.launch {
-            val result = repository.registerUser(user, email, phone, password)
+            val result = repository.registerUser(email, password, phone, user)
 
             isLoading = false
 

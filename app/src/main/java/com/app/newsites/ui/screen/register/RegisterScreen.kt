@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,7 +45,7 @@ fun RegisterScreen(
     navController: NavController,
     viewModel: RegisterViewModel = viewModel()
 ) {
-    var context = LocalContext.current
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -141,9 +142,10 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = viewModel.password,
                 onValueChange = { viewModel.password = it },
-                label = { Text("Teléfono") },
+                label = { Text("Password") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(fontFamily = FontFamily(Font(R.font.alata))),
                 colors = TextFieldDefaults.colors(
@@ -198,7 +200,7 @@ fun RegisterScreen(
             if (viewModel.isRegisterSuccessful) {
                 LaunchedEffect(Unit) {
                     Toast.makeText(context, "Registro realizado. Inicia Sesión", Toast.LENGTH_SHORT).show()
-                    navController.navigate("home") {
+                    navController.navigate("login") {
                         popUpTo("login") { inclusive = true }
                     }
                     viewModel.isRegisterSuccessful = false

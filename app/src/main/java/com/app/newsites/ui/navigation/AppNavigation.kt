@@ -10,11 +10,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.app.newsites.ui.screen.home.HomeScreen
 import com.app.newsites.ui.screen.login.LoginScreen
+import com.app.newsites.ui.screen.login.LoginViewModel
 import com.app.newsites.ui.screen.register.RegisterScreen
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation(navController: NavHostController, userViewModel: LoginViewModel = viewModel()) {
     NavHost(
         navController = navController,
         startDestination = "login",
@@ -26,7 +27,7 @@ fun AppNavigation(navController: NavHostController) {
             LoginScreen(navController = navController, viewModel = viewModel())
         }
         composable("home") {
-            HomeScreen()
+            HomeScreen(/*navController = navController, viewModel = viewModel()*/)
         }
         composable("register") {
             RegisterScreen(navController = navController, viewModel = viewModel())
