@@ -26,9 +26,9 @@ class SitesViewModel : ViewModel() {
                     val lista = snapshot.documents.mapNotNull { doc ->
                         val nombre = doc.getString("nombre")
                         val ubicacion = doc.get("direccion")?.toString()
-
                         val descripcion = doc.getString("descripcion")
                         val img = doc.getString("img")
+
                         if (nombre != null && ubicacion != null && descripcion != null && img != null ) {
                             mapOf(
                                 "nombre" to nombre,
@@ -44,4 +44,21 @@ class SitesViewModel : ViewModel() {
                 }
             }
     }
+    fun agregarSite(nombre: String, ubicacion: String, descripcion: String, img: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val nuevoSite = hashMapOf(
+            "nombre" to nombre,
+            "direccion" to ubicacion,
+            "descripcion" to descripcion,
+            "img" to img
+        )
+
+        db.collection("sites")
+            .add(nuevoSite)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { exception -> onFailure(exception) }
+    }
+
+    // Agregar funciones de eliminación, edición
+    // cuando no este muerto de sueño 
+
 }

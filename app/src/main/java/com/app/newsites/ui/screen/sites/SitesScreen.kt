@@ -40,7 +40,7 @@ fun SitesScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* Acción agregar */ },
+                onClick = { navController?.navigate("agregar_site") },
                 containerColor = Color(0xFFE53935)
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Agregar", tint = Color.White)
@@ -59,9 +59,11 @@ fun SitesScreen(
                     site = site,
                     onEdit = {
                         // Acción editar
+                        // agregar despues cuando no este muerto de sueño
                     },
                     onDeleteConfirmed = {
                         // Acción eliminar confirmada
+                        // agregar despues cuando no este muerto de sueño
                     }
                 )
             }
@@ -90,7 +92,7 @@ fun SiteItem(
         onSwipe = { showDialog = true }
     )
 
-    // Diálogo de confirmación
+    // Diálogo de confirmación para eliminar
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -123,8 +125,8 @@ fun SiteItem(
         shape = MaterialTheme.shapes.medium
     ) {
         SwipeableActionsBox(
-            startActions = listOf(editAction),
-            endActions = listOf(deleteAction),
+            startActions = listOf(deleteAction),
+            endActions = listOf(editAction),
             swipeThreshold = 100.dp,
             modifier = Modifier.clip(MaterialTheme.shapes.medium)
         ) {

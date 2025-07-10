@@ -12,6 +12,7 @@ import com.app.newsites.ui.screen.home.HomeScreen
 import com.app.newsites.ui.screen.login.LoginScreen
 import com.app.newsites.ui.screen.login.LoginViewModel
 import com.app.newsites.ui.screen.register.RegisterScreen
+import com.app.newsites.ui.screen.sites.AgregarSiteScreen
 import com.app.newsites.ui.screen.sites.SitesScreen
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -35,7 +36,9 @@ fun AppNavigation(navController: NavHostController, userViewModel: LoginViewMode
         }
         composable("sites") {
             SitesScreen(navController = navController, viewModel = viewModel())
-
+        }
+        composable("agregar_site") {
+            AgregarSiteScreen(navController)
         }
     }
 }
