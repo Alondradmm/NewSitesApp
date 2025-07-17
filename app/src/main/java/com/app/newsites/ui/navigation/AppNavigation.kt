@@ -13,6 +13,7 @@ import com.app.newsites.ui.screen.login.LoginScreen
 import com.app.newsites.ui.screen.login.LoginViewModel
 import com.app.newsites.ui.screen.register.RegisterScreen
 import com.app.newsites.ui.screen.sites.AgregarSiteScreen
+import com.app.newsites.ui.screen.sites.EditSite
 import com.app.newsites.ui.screen.sites.SitesScreen
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -39,6 +40,10 @@ fun AppNavigation(navController: NavHostController, userViewModel: LoginViewMode
         }
         composable("agregar_site") {
             AgregarSiteScreen(navController)
+        }
+        composable("editSite/{siteId}") { backStackEntry ->
+            val siteId = backStackEntry.arguments?.getString("siteId") ?: return@composable
+            EditSite(siteId, navController)
         }
     }
 }
