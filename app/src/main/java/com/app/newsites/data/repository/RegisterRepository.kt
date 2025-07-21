@@ -21,7 +21,7 @@ class RegisterRepository {
 
         db.collection("usuarios").document(email).set(
             hashMapOf(
-                "user" to user,
+                "username" to user,
                 "phone" to phone
             )
         )
