@@ -20,6 +20,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
@@ -30,6 +32,8 @@ fun SitesScreen(
     viewModel: SitesViewModel = viewModel()
 ) {
     val sitesState = viewModel.sites.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -46,6 +50,8 @@ fun SitesScreen(
                 Icon(Icons.Default.Add, contentDescription = "Agregar", tint = Color.White)
             }
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+
         containerColor = Color.White
     ) { innerPadding ->
         LazyColumn(
@@ -60,10 +66,26 @@ fun SitesScreen(
                     onEdit = {
                         // Acción editar
                         // agregar despues cuando no este muerto de sueño
+                        val id = site["id"]
+                        navController?.navigate("editSite/${site["id"]}")
                     },
                     onDeleteConfirmed = {
-                        // Acción eliminar confirmada
-                        // agregar despues cuando no este muerto de sueño
+                        val id = site["id"]
+                        if (id != null) {
+                            viewModel.eliminarSite(
+                                id,
+                                onSuccess = {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Sitio eliminado exitosamente")
+                                    }
+                                },
+                                onFailure = {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Error al eliminar el sitio")
+                                    }
+                                }
+                            )
+                        }
                     }
                 )
             }
