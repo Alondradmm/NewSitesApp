@@ -116,7 +116,6 @@ fun HomeScreen(
                     .align(Alignment.Center),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-
                 Text(
                     text = "NewSites",
                     fontFamily = FontFamily(Font(R.font.alata)),
