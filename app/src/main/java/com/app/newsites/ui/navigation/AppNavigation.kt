@@ -27,7 +27,7 @@ fun AppNavigation(navController: NavHostController, userViewModel: LoginViewMode
             LoginScreen(navController = navController, viewModel = viewModel())
         }
         composable("home") {
-            HomeScreen(/*navController = navController, viewModel = viewModel()*/)
+            HomeScreen(navController = navController, viewModel = viewModel())
         }
         composable("register") {
             RegisterScreen(navController = navController, viewModel = viewModel())

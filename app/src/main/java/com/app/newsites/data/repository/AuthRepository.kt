@@ -1,5 +1,6 @@
 package com.app.newsites.data.repository
 
+import com.app.newsites.data.SessionManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,6 +18,7 @@ class AuthRepository {
                 if (userAuthenticated.user == null) {
                     throw Exception("Se ha producido un error al autenticar usuario")
                 }
+                SessionManager.userMailId = email
             } catch (e : FirebaseAuthInvalidCredentialsException) {
                 throw Exception("Contraseña incorrecta")
             }
