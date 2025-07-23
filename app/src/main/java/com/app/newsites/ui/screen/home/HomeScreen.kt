@@ -70,12 +70,6 @@ fun HomeScreen(navController: NavHostController) {
                     )
                 }
             }
-            Button(
-                onClick = { navController.navigate("sites") },
-                modifier = Modifier.padding(top = 32.dp)
-            ) {
-                Text(text = "Ir a Sites")
-            }
 
 
 
