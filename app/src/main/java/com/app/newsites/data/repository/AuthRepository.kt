@@ -18,7 +18,7 @@ class AuthRepository {
                 if (userAuthenticated.user == null) {
                     throw Exception("Se ha producido un error al autenticar usuario")
                 }
-                SessionManager.userMailId = email
+                SessionManager.userId = email
             } catch (e : FirebaseAuthInvalidCredentialsException) {
                 throw Exception("Contraseña incorrecta")
             }

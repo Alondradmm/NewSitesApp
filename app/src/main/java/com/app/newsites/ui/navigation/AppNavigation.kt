@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import com.app.newsites.ui.screen.home.HomeScreen
 import com.app.newsites.ui.screen.login.LoginScreen
 import com.app.newsites.ui.screen.login.LoginViewModel
+import com.app.newsites.ui.screen.map.MapScreen
 import com.app.newsites.ui.screen.register.RegisterScreen
 import com.app.newsites.ui.screen.sites.AgregarSiteScreen
 import com.app.newsites.ui.screen.sites.EditSite
@@ -44,6 +45,9 @@ fun AppNavigation(navController: NavHostController, userViewModel: LoginViewMode
         composable("editSite/{siteId}") { backStackEntry ->
             val siteId = backStackEntry.arguments?.getString("siteId") ?: return@composable
             EditSite(siteId, navController)
+        }
+        composable("map") {
+            MapScreen(navController = navController, viewModel = viewModel())
         }
     }
 }
