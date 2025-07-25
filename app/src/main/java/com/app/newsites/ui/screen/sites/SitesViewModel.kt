@@ -2,6 +2,7 @@ package com.app.newsites.ui.screen.sites
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -46,10 +47,11 @@ class SitesViewModel : ViewModel() {
                 }
             }
     }
-    fun agregarSite(nombre: String, ubicacion: String, descripcion: String, img: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    fun agregarSite(nombre: String, ubicacion: String, descripcion: String, coords: GeoPoint, img: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val nuevoSite = hashMapOf(
             "nombre" to nombre,
             "direccion" to ubicacion,
+            "coords" to coords,
             "descripcion" to descripcion,
             "img" to img
         )

@@ -1,13 +1,12 @@
 package com.app.newsites.ui.screen.home
 
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,12 +15,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.rounded.AddLocationAlt
+import androidx.compose.material.icons.rounded.CalendarToday
+import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,14 +43,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -50,7 +57,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.app.newsites.R
-import com.app.newsites.ui.session.SessionViewModel
+import com.app.newsites.data.DataStoreClass
+import kotlinx.coroutines.flow.first
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
@@ -60,12 +68,14 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = viewModel()
 ) {
-    val session: SessionViewModel = viewModel()
-    val userId by session.userId.collectAsState()
-    val user by viewModel.usuario.collectAsState()
-
-    LaunchedEffect(key1 = userId) {
-        viewModel.cargarUsuario(userId.toString())
+    val user = viewModel.usuario.collectAsState()
+    val userHistory = viewModel.userHistory.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        val prefs = DataStoreClass(context)
+        val currentUser = prefs.currentUser.first()
+        Log.d("DATASTORE", currentUser)
+        viewModel.inicializarUsuario(userId = currentUser, context)
     }
     Scaffold (
         bottomBar = {
@@ -88,8 +98,8 @@ fun HomeScreen(
                 NavigationBarItem(
                     selected = true,
                     onClick = {
-                        navController.navigate("register") {
-                            popUpTo("register") { inclusive = true }
+                        navController.navigate("map") {
+                            popUpTo("map") { inclusive = true }
                         }
                     },
                     icon = {
@@ -99,6 +109,21 @@ fun HomeScreen(
                         )
                     },
                     label = { Text("Mapa") }
+                )
+                NavigationBarItem(
+                    selected = true,
+                    onClick = {
+                        navController.navigate("sites") {
+                            popUpTo("sites") { inclusive = true }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Sites"
+                        )
+                    },
+                    label = { Text("Mis Sites") }
                 )
             }
         }
@@ -136,99 +161,228 @@ fun HomeScreen(
                     )
 
                     Text(
-                        text = user?.username ?: "",
+                        text = user.value["username"].toString(),
                         fontFamily = FontFamily(Font(R.font.alata)),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
-                Row (
+                LazyVerticalGrid (
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    columns = GridCells.Fixed(2)
                 ){
-                    Card (
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f),
-                        elevation = CardDefaults.cardElevation(2.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .fillMaxWidth()
+                                .wrapContentHeight(), // Ajusta altura al contenido
+                            elevation = CardDefaults.cardElevation(2.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
                         ) {
-                            Column (
-                                modifier = Modifier.fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ){
-                                Image(
-                                    painter = painterResource(id = R.drawable.newsites),
-                                    contentDescription = "Logo",
-                                    contentScale = ContentScale.Inside,
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min) // Permite que los hijos (Box) se estiren en altura
+                            ) {
+                                Box(
                                     modifier = Modifier
-                                        .height(60.dp),
-                                )
-                                Text(
-                                    text = "SitePoints",
-                                    fontFamily = FontFamily(Font(R.font.alata)),
-                                    fontSize = 20.sp,
-                                    color = Color.Red,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "1000",
-                                    fontFamily = FontFamily(Font(R.font.alata)),
-                                    fontSize = 20.sp,
-                                    color = Color.Red,
-                                )
-                            }
+                                        .background(Color.Red)
+                                        .width(60.dp)
+                                        .fillMaxHeight(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Star,
+                                        contentDescription = "Logo",
+                                        modifier = Modifier.size(30.dp),
+                                        tint = Color.White
+                                    )
+                                }
 
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(6.dp)
+                                ) {
+                                    Text(
+                                        text = "Site Points",
+                                        fontFamily = FontFamily(Font(R.font.alata)),
+                                        fontSize = 20.sp,
+                                        color = Color.Red,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = user.value["points"].toString(),
+                                        fontFamily = FontFamily(Font(R.font.alata)),
+                                        fontSize = 20.sp,
+                                        color = Color.Red,
+                                    )
+                                }
+                            }
                         }
+
                     }
 
-                    Card (
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f),
-                        elevation = CardDefaults.cardElevation(2.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .fillMaxWidth()
+                                .wrapContentHeight(), // Ajusta altura al contenido
+                            elevation = CardDefaults.cardElevation(2.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
                         ) {
-                            Column (
-                                modifier = Modifier.fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ){
-                                Image(
-                                    painter = painterResource(id = R.drawable.newsites),
-                                    contentDescription = "Logo",
-                                    contentScale = ContentScale.Inside,
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min) // Permite que los hijos (Box) se estiren en altura
+                            ) {
+                                Box(
                                     modifier = Modifier
-                                        .height(60.dp),
-                                )
-                                Text(
-                                    text = "New Sites",
-                                    fontFamily = FontFamily(Font(R.font.alata)),
-                                    fontSize = 20.sp,
-                                    color = Color.Red,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "3",
-                                    fontFamily = FontFamily(Font(R.font.alata)),
-                                    fontSize = 20.sp,
-                                    color = Color.Red,
-                                )
-                            }
+                                        .background(Color.Red)
+                                        .width(60.dp)
+                                        .fillMaxHeight(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.LocationOn,
+                                        contentDescription = "Logo",
+                                        modifier = Modifier.size(30.dp),
+                                        tint = Color.White
+                                    )
+                                }
 
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(6.dp)
+                                ) {
+                                    Text(
+                                        text = "Total Sites",
+                                        fontFamily = FontFamily(Font(R.font.alata)),
+                                        fontSize = 20.sp,
+                                        color = Color.Red,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = user.value["totalSites"].toString(),
+                                        fontFamily = FontFamily(Font(R.font.alata)),
+                                        fontSize = 20.sp,
+                                        color = Color.Red,
+                                    )
+                                }
+                            }
                         }
+
                     }
+
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .fillMaxWidth()
+                                .wrapContentHeight(), // Ajusta altura al contenido
+                            elevation = CardDefaults.cardElevation(2.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min) // Permite que los hijos (Box) se estiren en altura
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(Color.Red)
+                                        .width(60.dp)
+                                        .fillMaxHeight(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.AddLocationAlt,
+                                        contentDescription = "Logo",
+                                        modifier = Modifier.size(30.dp),
+                                        tint = Color.White
+                                    )
+                                }
+
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(6.dp)
+                                ) {
+                                    Text(
+                                        text = "New Sites",
+                                        fontFamily = FontFamily(Font(R.font.alata)),
+                                        fontSize = 20.sp,
+                                        color = Color.Red,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = user.value["newSites"].toString(),
+                                        fontFamily = FontFamily(Font(R.font.alata)),
+                                        fontSize = 20.sp,
+                                        color = Color.Red,
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .fillMaxWidth()
+                                .wrapContentHeight(), // Ajusta altura al contenido
+                            elevation = CardDefaults.cardElevation(2.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min) // Permite que los hijos (Box) se estiren en altura
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(Color.Red)
+                                        .width(60.dp)
+                                        .fillMaxHeight(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.CalendarToday,
+                                        contentDescription = "Logo",
+                                        modifier = Modifier.size(30.dp),
+                                        tint = Color.White
+                                    )
+                                }
+
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(6.dp)
+                                ) {
+                                    Text(
+                                        text = "Day Sites",
+                                        fontFamily = FontFamily(Font(R.font.alata)),
+                                        fontSize = 20.sp,
+                                        color = Color.Red,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = user.value["daySites"].toString(),
+                                        fontFamily = FontFamily(Font(R.font.alata)),
+                                        fontSize = 20.sp,
+                                        color = Color.Red,
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+
                 }
                 Text(
                     text = "Historial",
@@ -242,79 +396,75 @@ fun HomeScreen(
                     onSwipe = { }
                 )
 
-                SwipeableActionsBox (
-                    startActions = listOf(delete),
-                    modifier = Modifier.clip(RoundedCornerShape(16.dp))
+                LazyColumn (
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ){
-                    Card (
-                        colors = CardDefaults.cardColors(Color.White),
-                        elevation = CardDefaults.cardElevation(2.dp),
-                        shape = RoundedCornerShape(0.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(100.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Box (
-                                modifier = Modifier
-                                    .background(Color.Red)
-                                    .width(80.dp)
-                                    .fillMaxHeight()
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column (
-                                modifier = Modifier.weight(7f),
-                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                    userHistory.value.forEach { (date, history) ->
+                        item {
+                            Text(date)
+                        }
+
+                        items(history) { site ->
+                            SwipeableActionsBox (
+                                startActions = listOf(delete),
+                                modifier = Modifier.clip(RoundedCornerShape(16.dp))
                             ){
-                                Text(
-                                    text = "Nombre de Site",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                ){
-                                    Icon(
-                                        imageVector = Icons.Default.LocationOn,
-                                        contentDescription = "Ícono",
+                                Card (
+                                    colors = CardDefaults.cardColors(Color.White),
+                                    elevation = CardDefaults.cardElevation(2.dp),
+                                    shape = RoundedCornerShape(0.dp),
+                                ) {
+                                    Row(
                                         modifier = Modifier
-                                            .size(10.dp)
-                                            .fillMaxHeight()
-                                    )
+                                            .fillMaxWidth()
+                                            .height(IntrinsicSize.Min),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ){
+                                        Box (
+                                            modifier = Modifier
+                                                .background(Color.Red)
+                                                .width(80.dp)
+                                                .fillMaxHeight()
+                                        )
+                                        Column (
+                                            modifier = Modifier
+                                                .weight(7f)
+                                                .padding(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(5.dp),
+                                        ){
+                                            Text(
+                                                text = site["nombre"].toString(),
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
 
-                                    Text(
-                                        text = "Nombre de Site",
-                                        fontSize = 14.sp,
-                                    )
-                                }
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                            ){
+                                                Icon(
+                                                    imageVector = Icons.Default.Info,
+                                                    contentDescription = "Ícono",
+                                                    modifier = Modifier
+                                                        .size(10.dp)
+                                                        .fillMaxHeight()
+                                                )
 
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                ){
-                                    Icon(
-                                        imageVector = Icons.Default.Info,
-                                        contentDescription = "Ícono",
-                                        modifier = Modifier
-                                            .size(10.dp)
-                                            .fillMaxHeight()
-                                    )
-
-                                    Text(
-                                        text = "Descripción",
-                                        fontSize = 14.sp,
-                                    )
+                                                Text(
+                                                    text = site["descripcion"].toString(),
+                                                    fontSize = 14.sp,
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
+
                         }
-                    }
+
+                        }
+
                 }
-
-
 
             }
         }
