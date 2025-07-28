@@ -39,5 +39,12 @@ class DataStoreClass(private val context: Context) {
         }
     }
 
+    fun getUserName(context: Context): Flow<String> {
+        return context.dataStore.data
+            .map { preferences ->
+                preferences[CURRENT_USER] ?: ""
+            }
+    }
+
 }
 

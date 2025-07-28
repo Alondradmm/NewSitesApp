@@ -178,14 +178,18 @@ fun AgregarSiteScreen(
             Button(
                 onClick = {
                     if (nombre.isBlank() || descripcion.isBlank() || img.isBlank()) {
-                        Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT)
+                            .show()
                         return@Button
                     }
 
                     viewModel.agregarSite(
                         nombre = nombre,
                         ubicacion = ubicacion,
-                        coords = GeoPoint(markerState.position.latitude, markerState.position.longitude),
+                        coords = GeoPoint(
+                            markerState.position.latitude,
+                            markerState.position.longitude
+                        ),
                         descripcion = descripcion,
                         img = img,
                         onSuccess = {
@@ -193,45 +197,10 @@ fun AgregarSiteScreen(
                             navController.popBackStack()
                         },
                         onFailure = {
-                            Toast.makeText(context, "Error al guardar el sitio", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Error al guardar el sitio", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     )
-
-                    /*locationPermission.launchPermissionRequest()
-
-                    if (!locationPermission.status.isGranted) {
-                        Toast.makeText(context, "Permiso de ubicación no concedido", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-
-                    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-                    try {
-                        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                            if (location != null) {
-                                ubicacion = "${location.latitude}, ${location.longitude}"
-
-                                viewModel.agregarSite(
-                                    nombre = nombre,
-                                    ubicacion = ubicacion,
-                                    descripcion = descripcion,
-                                    img = img,
-                                    onSuccess = {
-                                        Toast.makeText(context, "Sitio guardado", Toast.LENGTH_SHORT).show()
-                                        navController.popBackStack()
-                                    },
-                                    onFailure = {
-                                        Toast.makeText(context, "Error al guardar el sitio", Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            } else {
-                                Toast.makeText(context, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show()
-                            }
-                        }.addOnFailureListener {
-                            Toast.makeText(context, "Error al obtener ubicación", Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: SecurityException) {
-                        Toast.makeText(context, "No tienes permiso para acceder a la ubicación", Toast.LENGTH_SHORT).show()
-                    }*/
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)),
                 modifier = Modifier.fillMaxWidth()
