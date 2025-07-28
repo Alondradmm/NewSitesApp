@@ -14,9 +14,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.rounded.AddLocationAlt
 import androidx.compose.material3.AlertDialog
@@ -26,6 +29,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -58,7 +64,7 @@ import me.saket.swipe.SwipeableActionsBox
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun SitesScreen(
-    navController: NavController? = null,
+    navController: NavController,
     viewModel: SitesViewModel = viewModel()
 ) {
     val sitesState = viewModel.sites.collectAsState()
@@ -71,6 +77,55 @@ fun SitesScreen(
                 title = { Text("Mis Sites", color = Color.White) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFE53935))
             )
+        },
+        bottomBar = {
+            NavigationBar (windowInsets = NavigationBarDefaults.windowInsets) {
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Home,
+                            contentDescription = "Home"
+                        )
+                    },
+                    label = { Text("Inicio") }
+                )
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        navController.navigate("map") {
+                            popUpTo("map") { inclusive = true }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.LocationOn,
+                            contentDescription = "Home"
+                        )
+                    },
+                    label = { Text("Mapa") }
+                )
+                NavigationBarItem(
+                    selected = true,
+                    onClick = {
+                        navController.navigate("sites") {
+                            popUpTo("sites") { inclusive = true }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Sites"
+                        )
+                    },
+                    label = { Text("Mis Sites") }
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(

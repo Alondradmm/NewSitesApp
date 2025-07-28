@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +21,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -45,7 +45,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
@@ -83,8 +82,8 @@ fun HomeScreen(
                 NavigationBarItem(
                     selected = true,
                     onClick = {
-                        navController.navigate("login") {
-                            popUpTo("login") { inclusive = true }
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
                         }
                     },
                     icon = {
@@ -96,7 +95,7 @@ fun HomeScreen(
                     label = { Text("Inicio") }
                 )
                 NavigationBarItem(
-                    selected = true,
+                    selected = false,
                     onClick = {
                         navController.navigate("map") {
                             popUpTo("map") { inclusive = true }
@@ -111,7 +110,7 @@ fun HomeScreen(
                     label = { Text("Mapa") }
                 )
                 NavigationBarItem(
-                    selected = true,
+                    selected = false,
                     onClick = {
                         navController.navigate("sites") {
                             popUpTo("sites") { inclusive = true }
@@ -131,7 +130,7 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .padding(horizontal = 20.dp)
                 .padding(paddingValues)
                 .systemBarsPadding()
         ) {
@@ -397,22 +396,77 @@ fun HomeScreen(
                 )
 
                 LazyColumn (
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(bottom = 10.dp)
                 ){
                     userHistory.value.forEach { (date, history) ->
                         item {
                             Text(date)
                         }
 
-                        items(history) { site ->
-                            SwipeableActionsBox (
-                                startActions = listOf(delete),
-                                modifier = Modifier.clip(RoundedCornerShape(16.dp))
-                            ){
+                        if (history.isNotEmpty()){
+                            items(history) { site ->
+                                Card(
+                                    colors = CardDefaults.cardColors(Color.White),
+                                    elevation = CardDefaults.cardElevation(2.dp)
+                                )
+                                {
+                                    SwipeableActionsBox (
+                                        startActions = listOf(delete),
+                                    ){
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(IntrinsicSize.Min),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ){
+                                            Box (
+                                                modifier = Modifier
+                                                    .background(Color.Red)
+                                                    .width(80.dp)
+                                                    .fillMaxHeight()
+                                            )
+                                            Column (
+                                                modifier = Modifier
+                                                    .weight(7f)
+                                                    .padding(8.dp),
+                                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                            ){
+                                                Text(
+                                                    text = site["nombre"].toString(),
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                                ){
+                                                    Icon(
+                                                        imageVector = Icons.Default.Info,
+                                                        contentDescription = "Ícono",
+                                                        modifier = Modifier
+                                                            .size(10.dp)
+                                                            .fillMaxHeight()
+                                                    )
+
+                                                    Text(
+                                                        text = site["descripcion"].toString(),
+                                                        fontSize = 14.sp,
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+
+                            }
+                        } else {
+                            item {
                                 Card (
                                     colors = CardDefaults.cardColors(Color.White),
                                     elevation = CardDefaults.cardElevation(2.dp),
-                                    shape = RoundedCornerShape(0.dp),
                                 ) {
                                     Row(
                                         modifier = Modifier
@@ -422,7 +476,7 @@ fun HomeScreen(
                                     ){
                                         Box (
                                             modifier = Modifier
-                                                .background(Color.Red)
+                                                .background(Color.LightGray)
                                                 .width(80.dp)
                                                 .fillMaxHeight()
                                         )
@@ -433,7 +487,7 @@ fun HomeScreen(
                                             verticalArrangement = Arrangement.spacedBy(5.dp),
                                         ){
                                             Text(
-                                                text = site["nombre"].toString(),
+                                                text = "Sitio desconocido",
                                                 fontSize = 16.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
@@ -451,7 +505,7 @@ fun HomeScreen(
                                                 )
 
                                                 Text(
-                                                    text = site["descripcion"].toString(),
+                                                    text = "El site ya no existe",
                                                     fontSize = 14.sp,
                                                 )
                                             }
@@ -459,8 +513,8 @@ fun HomeScreen(
                                     }
                                 }
                             }
-
                         }
+
 
                         }
 

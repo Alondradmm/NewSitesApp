@@ -122,7 +122,7 @@ class MapViewModel : ViewModel() {
         siteMasCercano?.let{
             val currentTime = System.currentTimeMillis()
             Log.d("HISTORIAL", sitePointedToday.toString())
-            Log.d("Mapa Site Cercano", "${it["nombre"]}es el Site más cercano")
+                Log.d("Mapa Site Cercano", "${it["nombre"]}es el Site más cercano")
             if (sitePointedToday?.contains(it["id"]) == true){
                 Log.d("Mapa", "Ya estuviste en este Site hoy")
                 timeSiteDetected = currentTime

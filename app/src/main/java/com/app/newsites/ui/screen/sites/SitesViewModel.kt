@@ -1,24 +1,42 @@
 package com.app.newsites.ui.screen.sites
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.app.newsites.data.DataStoreClass
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class SitesViewModel : ViewModel() {
+class SitesViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = FirebaseFirestore.getInstance()
 
     private val _sites = MutableStateFlow<List<Map<String, String>>>(emptyList())
     val sites: StateFlow<List<Map<String, String>>> = _sites
 
+    private val datastore = DataStoreClass(application)
+
+    var userId: Flow<String> = datastore.getUserName(application)
+
     init {
-        obtenerSites()
+        viewModelScope.launch {
+            userId.collect { id ->
+                Log.d("USER_SITE", id) // Aquí sí obtendrás el valor real cuando se emita
+                if (id.isNotBlank()) {
+                    obtenerSites(id)
+                }
+            }
+        }
     }
 
-    private fun obtenerSites() {
+    private fun obtenerSites(id: String) {
         db.collection("sites")
+            .whereEqualTo("owner", id)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     return@addSnapshotListener
