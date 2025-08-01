@@ -20,7 +20,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.rounded.AddLocationAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -119,11 +121,26 @@ fun SitesScreen(
                     },
                     icon = {
                         Icon(
-                            Icons.Default.Add,
+                            Icons.Default.Store,
                             contentDescription = "Sites"
                         )
                     },
                     label = { Text("Mis Sites") }
+                )
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        navController.navigate("perfil") {
+                            popUpTo("perfil") { inclusive = true }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = "Home"
+                        )
+                    },
+                    label = { Text("Perfil") }
                 )
             }
         },
