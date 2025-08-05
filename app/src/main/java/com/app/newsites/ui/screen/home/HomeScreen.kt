@@ -70,6 +70,8 @@ fun HomeScreen(
     val user = viewModel.usuario.collectAsState()
     val userHistory = viewModel.userHistory.collectAsState()
     val context = LocalContext.current
+    val userEmail = user.value["email"]?.toString() ?: ""
+
     LaunchedEffect(Unit) {
         val prefs = DataStoreClass(context)
         val currentUser = prefs.currentUser.first()
@@ -97,7 +99,7 @@ fun HomeScreen(
                 NavigationBarItem(
                     selected = false,
                     onClick = {
-                        navController.navigate("map") {
+                        navController.navigate("map/$userEmail") {
                             popUpTo("map") { inclusive = true }
                         }
                     },

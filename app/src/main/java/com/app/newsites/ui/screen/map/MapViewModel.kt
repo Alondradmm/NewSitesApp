@@ -5,9 +5,13 @@ import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.volley.DefaultRetryPolicy
+import com.android.volley.NoConnectionError
+import com.android.volley.toolbox.StringRequest
 import com.app.newsites.data.DataStoreClass
 import com.app.newsites.data.SessionManager
 import com.app.newsites.data.repository.UserHistoryRepository
+import com.app.newsites.ui.screen.map.SiteResponse
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,13 +20,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.Locale
+import com.android.volley.Request
+import com.android.volley.TimeoutError
+import org.json.JSONObject
+import java.net.URLEncoder
+
 
 class MapViewModel : ViewModel() {
 
     private val repository = UserHistoryRepository()
-
 
     private val db = FirebaseFirestore.getInstance()
 
@@ -30,6 +39,7 @@ class MapViewModel : ViewModel() {
     private val _sitesCercanos = MutableStateFlow<List<Map<String, Any>>>(emptyList())
     val sites: StateFlow<List<Map<String, Any>>> = _sites
     val sitesCercanos: StateFlow<List<Map<String, Any>>> = _sitesCercanos
+
 
     init {
         obtenerSites()
@@ -47,7 +57,7 @@ class MapViewModel : ViewModel() {
                         val nombre = doc.getString("nombre")
                         val coords = doc.getGeoPoint("coords")
 
-                        if (nombre != null && coords != null ) {
+                        if (nombre != null && coords != null) {
                             mapOf(
                                 "id" to id,
                                 "nombre" to nombre,
@@ -70,7 +80,8 @@ class MapViewModel : ViewModel() {
     private val formatDate = SimpleDateFormat("EEEE, MMMM d, yyyy", Locale("es"))
     private val currentDay = formatDate.format(System.currentTimeMillis())
     private var sitePointedToday: List<String>? = null
-    suspend fun procesarUbicacion(latitud : Double, longitud: Double, context: Context){
+
+    suspend fun procesarUbicacion(latitud: Double, longitud: Double, context: Context) {
         val prefs = DataStoreClass(context)
         val userId = prefs.currentUser.first()
         viewModelScope.launch {
@@ -88,7 +99,7 @@ class MapViewModel : ViewModel() {
         }
 
         // Por cada site en el listado
-        _sitesCercanos.value.forEach() { site ->
+        _sitesCercanos.value.forEach { site ->
             // Se toman las coords del sitio
             val geoPoint = site["coords"] as GeoPoint
             // Se convierte las coords en un Location() (para medir)
@@ -115,19 +126,17 @@ class MapViewModel : ViewModel() {
                 siteMasCercano = site
                 distanciaCercano = distancia
             }
-
         }
 
-
-        siteMasCercano?.let{
+        siteMasCercano?.let {
             val currentTime = System.currentTimeMillis()
             Log.d("HISTORIAL", sitePointedToday.toString())
-                Log.d("Mapa Site Cercano", "${it["nombre"]}es el Site más cercano")
-            if (sitePointedToday?.contains(it["id"]) == true){
+            Log.d("Mapa Site Cercano", "${it["nombre"]} es el Site más cercano")
+            if (sitePointedToday?.contains(it["id"]) == true) {
                 Log.d("Mapa", "Ya estuviste en este Site hoy")
                 timeSiteDetected = currentTime
-            }else{
-                if (currentTime - timeSiteDetected >= timeToPointSite){
+            } else {
+                if (currentTime - timeSiteDetected >= timeToPointSite) {
                     timeSiteDetected = currentTime
                     Log.d("Mapa", "Estuviste 1 min en el mismo sitio")
                     siteMasCercano = null
@@ -145,7 +154,7 @@ class MapViewModel : ViewModel() {
                         .addOnSuccessListener { doc ->
                             sitePoints = doc.getLong("points") ?: 0
                             val allSites = SessionManager.userHistory.values.flatten()
-                            val isNewSite = if(allSites.contains(it["id"].toString())) 0L else 1L
+                            val isNewSite = if (allSites.contains(it["id"].toString())) 0L else 1L
                             Log.d("NEW SITE", "El sitio es nuevo? $isNewSite")
                             db.collection("usuarios")
                                 .document(userId)
@@ -165,15 +174,9 @@ class MapViewModel : ViewModel() {
                                     Log.e("Firestore", "Error al agregar elemento", e)
                                 }
                         }
-
-
-                } else {
-
                 }
             }
-
         }
-
     }
 
     private fun marcadoresCercanos(userLat: Double, userLng: Double, rangoMetros: Double = 300.0) {
@@ -185,10 +188,107 @@ class MapViewModel : ViewModel() {
         val filtrados = _sites.value.filter { site ->
             val geo = site["coords"] as? GeoPoint ?: return@filter false
             geo.latitude in (userLat - deltaLat)..(userLat + deltaLat) &&
-            geo.longitude in (userLng - deltaLng)..(userLng + deltaLng)
+                    geo.longitude in (userLng - deltaLng)..(userLng + deltaLng)
         }
 
         _sitesCercanos.value = filtrados
     }
-}
 
+    private val _sitios = MutableStateFlow<List<SiteResponse>>(emptyList())
+    val sitios: StateFlow<List<SiteResponse>> = _sitios
+
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    fun obtenerLugaresVolley(context: Context, email: String) {
+        _loading.value = true
+        _errorMessage.value = null
+
+        Log.d("MAP_VIEWMODEL", "Obteniendo lugares para: $email")
+
+        val encodedEmail = URLEncoder.encode(email, "UTF-8")
+        val url = "http://192.168.100.172:5000/recomendar/lugares?email=$encodedEmail"
+
+        Log.d("API_REQUEST", "URL: $url")
+
+        val request = StringRequest(
+            Request.Method.GET, url,
+            { response ->
+                Log.d("API_RESPONSE", "Respuesta recibida: ${response.take(200)}...")
+                try {
+                    val listaSites = parseSitesFromJson(response)
+                    Log.d("API_SUCCESS", "Lugares obtenidos: ${listaSites.size}")
+                    _sitios.value = listaSites
+                } catch (e: Exception) {
+                    Log.e("API_PARSE_ERROR", "Error al parsear: ${e.message}")
+                    _errorMessage.value = "Error al procesar los datos"
+                }
+                _loading.value = false
+            },
+            { error ->
+                Log.e("API_ERROR", "Error: ${error.message}")
+                _errorMessage.value = when {
+                    error.networkResponse?.statusCode == 404 -> "Servicio no disponible"
+                    error is TimeoutError -> "Tiempo de espera agotado"
+                    else -> "Error de conexión"
+                }
+                _loading.value = false
+            }
+        ).apply {
+            retryPolicy = DefaultRetryPolicy(
+                15000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            )
+        }
+
+        VolleySingleton.getInstance(context).addToRequestQueue(request)
+    }
+
+    private fun parseSitesFromJson(jsonStr: String): List<SiteResponse> {
+        val list = mutableListOf<SiteResponse>()
+        try {
+            Log.d("API_RESPONSE", "Respuesta JSON: $jsonStr")
+
+            val jsonArray = JSONArray(jsonStr)
+            for (i in 0 until jsonArray.length()) {
+                val obj = jsonArray.getJSONObject(i)
+
+                // Coordenadas (asegurar que siempre sean 2 valores)
+                val coords = mutableListOf<Double>()
+                if (obj.has("coords")) {
+                    val coordsJson = obj.getJSONArray("coords")
+                    for (j in 0 until coordsJson.length()) {
+                        coords.add(coordsJson.getDouble(j))
+                    }
+                }
+                if (coords.size < 2) {
+                    coords.add(0.0)
+                    coords.add(0.0)
+                }
+
+                list.add(
+                    SiteResponse(
+                        nombre = obj.getString("nombre"),
+                        descripcion = obj.getString("descripcion"),
+                        tipo = obj.getString("tipo"),
+                        Probabilidad = obj.getDouble("Probabilidad"),
+                        Visitado = obj.getBoolean("Visitado"),
+                        coords = coords,
+                        direccion = obj.optString("direccion", ""),
+                        img = obj.optString("img", ""),
+                        owner = obj.optString("owner", ""),
+                        valoracion = obj.optString("valoracion", "0")
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            Log.e("JSON_PARSE_ERROR", "Error al parsear JSON: ${e.message}")
+            e.printStackTrace()
+        }
+        return list
+    }
+}
