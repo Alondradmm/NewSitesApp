@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.rounded.AddLocationAlt
@@ -105,7 +106,7 @@ fun HomeScreen(
                     },
                     icon = {
                         Icon(
-                            Icons.Default.LocationOn,
+                            Icons.Default.Map,
                             contentDescription = "Home"
                         )
                     },
