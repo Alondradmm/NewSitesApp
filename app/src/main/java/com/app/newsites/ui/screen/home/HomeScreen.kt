@@ -27,6 +27,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.rounded.AddLocationAlt
 import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.LocationOn
@@ -105,7 +108,7 @@ fun HomeScreen(
                     },
                     icon = {
                         Icon(
-                            Icons.Default.LocationOn,
+                            Icons.Default.Map,
                             contentDescription = "Home"
                         )
                     },
@@ -120,11 +123,27 @@ fun HomeScreen(
                     },
                     icon = {
                         Icon(
-                            Icons.Default.Add,
+                            Icons.Default.Store,
                             contentDescription = "Sites"
                         )
                     },
                     label = { Text("Mis Sites") }
+                )
+                //Perfil
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        navController.navigate("perfil") {
+                            popUpTo("perfil") { inclusive = true }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = "Home"
+                        )
+                    },
+                    label = { Text("Perfil") }
                 )
             }
         }
@@ -161,7 +180,7 @@ fun HomeScreen(
                         fontSize = 20.sp,
                     )
 
-                    Text(
+                    Text(//Obtener usuario
                         text = user.value["username"].toString(),
                         fontFamily = FontFamily(Font(R.font.alata)),
                         fontSize = 20.sp,

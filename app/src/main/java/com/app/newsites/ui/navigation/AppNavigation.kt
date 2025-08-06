@@ -10,6 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.app.newsites.ui.screen.Perfil.PerfilScreen
 import com.app.newsites.ui.screen.home.HomeScreen
 import com.app.newsites.ui.screen.login.LoginScreen
 import com.app.newsites.ui.screen.login.LoginViewModel
@@ -34,6 +35,9 @@ fun AppNavigation(navController: NavHostController, userViewModel: LoginViewMode
         }
         composable("home") {
             HomeScreen(navController = navController)
+        }
+        composable("perfil") {
+            PerfilScreen(navController = navController, viewModel = viewModel())
         }
         composable("register") {
             RegisterScreen(navController = navController, viewModel = viewModel())
@@ -62,5 +66,6 @@ fun AppNavigation(navController: NavHostController, userViewModel: LoginViewMode
                 emailUsuario = email
             )
         }
+
     }
 }

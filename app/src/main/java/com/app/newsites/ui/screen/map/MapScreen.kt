@@ -17,8 +17,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Map
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Store
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -147,6 +149,21 @@ fun MapScreen(
                     onClick = { navController.navigate("sites") { popUpTo("sites") { inclusive = true } } },
                     icon = { Icon(Icons.Rounded.Store, contentDescription = "Sites") },
                     label = { Text("Mis Sites") }
+                )
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        navController.navigate("perfil") {
+                            popUpTo("perfil") { inclusive = true }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Rounded.Person,
+                            contentDescription = "Home"
+                        )
+                    },
+                    label = { Text("Perfil") }
                 )
             }
         }
