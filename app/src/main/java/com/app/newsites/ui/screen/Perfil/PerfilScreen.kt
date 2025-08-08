@@ -2,6 +2,7 @@ package com.app.newsites.ui.screen.Perfil
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,11 +23,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.rounded.AlternateEmail
 import androidx.compose.material.icons.rounded.PhoneIphone
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarHalf
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,9 +66,11 @@ import kotlinx.coroutines.flow.first
 fun PerfilScreen(
     navController: NavController,
     viewModel: HomeViewModel  = viewModel()//Obtener los datos
-){
+) {
     val user = viewModel.usuario.collectAsState()
     val context = LocalContext.current
+    val userEmail = user.value["email"]?.toString() ?: ""
+
     LaunchedEffect(Unit) {
         val prefs = DataStoreClass(context)
         val currentUser = prefs.currentUser.first()
@@ -100,13 +105,13 @@ fun PerfilScreen(
                 NavigationBarItem(
                     selected = false,
                     onClick = {
-                        navController.navigate("map") {
+                        navController.navigate("map/$userEmail") {
                             popUpTo("map") { inclusive = true }
                         }
                     },
                     icon = {
                         Icon(
-                            Icons.Default.LocationOn,
+                            Icons.Default.Map,
                             contentDescription = "Home"
                         )
                     },
@@ -179,6 +184,7 @@ fun PerfilScreen(
                         color = Color.Red,
                     )
                 }
+
 
                 LazyVerticalGrid(
                     modifier = Modifier
@@ -275,10 +281,54 @@ fun PerfilScreen(
                         }
 
                     }
+                    item {//Ir a encuesta
+                        Card(//card
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .fillMaxWidth()
+                                .clickable {
+                                    navController.navigate("encuesta")
+                                },
+                            elevation = CardDefaults.cardElevation(2.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min) // Permite que los hijos (Box) se estiren en altura
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(Color.Red)
+                                        .width(60.dp)
+                                        .fillMaxHeight(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.StarHalf,
+                                        contentDescription = "Logo",
+                                        modifier = Modifier.size(30.dp),
+                                        tint = Color.White
+                                    )
+                                }
+
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(6.dp)
+                                ) {
+                                    Text(
+                                        text = "Mejorar recomendaciones",
+                                        fontFamily = FontFamily(Font(R.font.alata)),
+                                        fontSize = 20.sp,
+                                        color = Color.Red,
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-
 
     }
 }

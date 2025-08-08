@@ -210,7 +210,7 @@ class MapViewModel : ViewModel() {
         Log.d("MAP_VIEWMODEL", "Obteniendo lugares para: $email")
 
         val encodedEmail = URLEncoder.encode(email, "UTF-8")
-        val url = "http://192.168.100.172:5000/recomendar/lugares?email=$encodedEmail"
+        val url = "http://192.168.100.23:5000/recomendar/lugares?email=$encodedEmail"
 
         Log.d("API_REQUEST", "URL: $url")
 
