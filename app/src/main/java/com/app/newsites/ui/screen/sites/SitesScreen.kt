@@ -20,7 +20,10 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.rounded.AddLocationAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -67,9 +70,12 @@ fun SitesScreen(
     navController: NavController,
     viewModel: SitesViewModel = viewModel()
 ) {
+    val user = viewModel.usuario.collectAsState()//
     val sitesState = viewModel.sites.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val userEmail = user.value["email"]?.toString() ?: ""//
+
 
     Scaffold(
         topBar = {
@@ -98,13 +104,13 @@ fun SitesScreen(
                 NavigationBarItem(
                     selected = false,
                     onClick = {
-                        navController.navigate("map") {
+                        navController.navigate("map/$userEmail") {
                             popUpTo("map") { inclusive = true }
                         }
                     },
                     icon = {
                         Icon(
-                            Icons.Default.LocationOn,
+                            Icons.Default.Map,
                             contentDescription = "Home"
                         )
                     },
@@ -119,14 +125,30 @@ fun SitesScreen(
                     },
                     icon = {
                         Icon(
-                            Icons.Default.Add,
+                            Icons.Default.Store,
                             contentDescription = "Sites"
                         )
                     },
                     label = { Text("Mis Sites") }
                 )
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        navController.navigate("perfil") {
+                            popUpTo("perfil") { inclusive = true }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = "Home"
+                        )
+                    },
+                    label = { Text("Perfil") }
+                )
             }
         },
+        //cambiar a la pestaña de agregar
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController?.navigate("agregar_site") },

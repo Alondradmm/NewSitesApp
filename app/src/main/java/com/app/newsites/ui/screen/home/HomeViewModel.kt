@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.app.newsites.data.DataStoreClass
 import com.app.newsites.data.SessionManager
 import com.app.newsites.data.repository.UserHistoryRepository
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,6 @@ class HomeViewModel : ViewModel() {
     
     private val _usuario = MutableStateFlow<Map<String, Any?>>(emptyMap())
     val usuario: StateFlow<Map<String, Any?>> = _usuario
-
 
     val _userHistory = MutableStateFlow<Map<String, List<Map<String, String>>>>(emptyMap())
     val userHistory: StateFlow<Map<String, List<Map<String, String>>>> = _userHistory
