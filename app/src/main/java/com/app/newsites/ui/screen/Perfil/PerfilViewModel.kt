@@ -17,7 +17,7 @@ class PerfilViewModel : ViewModel() {
     //funcion para actualizar la coleccion del usuario para el formulario
     fun encuestaMejora(
         email: String,
-        especial: Boolean,
+        asistenciaEspecial: Boolean,
         comunicacion: List<String>,
         intereses: List<String>,
         pago: List<String>,
@@ -26,7 +26,7 @@ class PerfilViewModel : ViewModel() {
     ) {
         //Es para actualizar la coleccion del usuario
         val datos = mapOf(
-            "especial" to especial,
+            "asistenciaEspecial" to asistenciaEspecial,
             "comunicacion" to comunicacion,
             "intereses" to intereses,
             "pago" to pago

@@ -54,11 +54,11 @@ fun EncuestaScreen(
     var email by remember { mutableStateOf("") }
 
     // Campos para encuesta
-    var especial by remember { mutableStateOf(false) }
+    var asistenciaEspecial by remember { mutableStateOf(false) }
 
-    val idiomas = listOf("Español", "Inglés", "Francés")
-    val intereses = listOf("Cultura", "Naturaleza", "Gastronomía", "Aventura")
-    val pagos = listOf("Tarjeta", "Efectivo", "Transferencia")
+    val idiomas = listOf("Espanol", "Ingles", "Frances")
+    val intereses = listOf("Cultura", "Naturaleza", "Gastronomia", "Aventura")
+    val pagos = listOf("Tarjeta", "Efectivo")
 
     val seleccionIdiomas = remember { mutableStateMapOf<String, Boolean>() }
     val seleccionIntereses = remember { mutableStateMapOf<String, Boolean>() }
@@ -87,8 +87,8 @@ fun EncuestaScreen(
         ) {
             Text("¿Necesitas asistencia especial?")
             Switch(
-                checked = especial,
-                onCheckedChange = { especial = it }
+                checked = asistenciaEspecial,
+                onCheckedChange = { asistenciaEspecial = it }
             )
             Divider()//lineas grices
 
@@ -138,7 +138,7 @@ fun EncuestaScreen(
 
                     viewModel.encuestaMejora(
                         email = email,
-                        especial = especial,
+                        asistenciaEspecial = asistenciaEspecial,
                         comunicacion = idiomasSeleccionados,
                         intereses = interesesSeleccionados,
                         pago = pagosSeleccionados,
