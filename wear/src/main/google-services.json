@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "581346305873",
+    "project_id": "fir-test-687f3",
+    "storage_bucket": "fir-test-687f3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581346305873:android:442f886a934bd17dc6d570",
+        "android_client_info": {
+          "package_name": "com.app.newsites"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHO47EodNtWb-HWDYn8w2oVneHDhtqa34"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581346305873:android:74e4ccd22903bcc9c6d570",
+        "android_client_info": {
+          "package_name": "com.app.newsites.wear"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHO47EodNtWb-HWDYn8w2oVneHDhtqa34"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581346305873:android:ef062c84f4d6a6f9c6d570",
+        "android_client_info": {
+          "package_name": "com.example.firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHO47EodNtWb-HWDYn8w2oVneHDhtqa34"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

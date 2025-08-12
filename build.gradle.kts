@@ -9,8 +9,11 @@ plugins {
 buildscript {
     repositories {
         google()
+        mavenCentral()
     }
     dependencies {
         classpath(libs.secrets.gradle.plugin)
+        classpath (libs.google.services)
     }
 }
+

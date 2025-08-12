@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.newsites.data.DataStoreClass
 import com.app.newsites.data.repository.AuthRepository
+import com.google.android.gms.wearable.PutDataMapRequest
+import com.google.android.gms.wearable.Wearable
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -59,6 +61,26 @@ class LoginViewModel : ViewModel() {
 
                     prefs.setLastLogin(currentDay)
                 }
+
+
+                val putDataMapRequest = PutDataMapRequest.create("/user")
+                val dataMap = putDataMapRequest.dataMap  // DataMap interno del request
+
+                dataMap.putString("user", email)
+                dataMap.putLong("timestamp", System.currentTimeMillis())
+
+                val request = putDataMapRequest.asPutDataRequest().setUrgent()
+
+                Wearable.getDataClient(context).putDataItem(request)
+                    .addOnSuccessListener {
+                        Log.d("WearSync", "Datos enviados correctamente")
+                    }
+                    .addOnFailureListener {
+                        Log.e("WearSync", "Error al enviar datos", it)
+                    }
+
+
+
                 isLoginSuccessful = true
 
 
