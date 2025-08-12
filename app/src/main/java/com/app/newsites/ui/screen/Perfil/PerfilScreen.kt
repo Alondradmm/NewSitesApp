@@ -281,6 +281,7 @@ fun PerfilScreen(
                         }
 
                     }
+
                     item {//Ir a encuesta
                         Card(//card
                             modifier = Modifier

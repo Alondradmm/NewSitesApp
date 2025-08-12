@@ -81,6 +81,7 @@ fun HomeScreen(
         Log.d("DATASTORE", currentUser)
         viewModel.inicializarUsuario(userId = currentUser, context)
     }
+
     Scaffold (
         bottomBar = {
             NavigationBar (windowInsets = NavigationBarDefaults.windowInsets) {

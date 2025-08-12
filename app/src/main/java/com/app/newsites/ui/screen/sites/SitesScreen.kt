@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
@@ -302,6 +303,13 @@ fun SiteItem(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(site["descripcion"] ?: "Descripción", style = MaterialTheme.typography.bodySmall)
                     }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Category, contentDescription = "Tipo", modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(site["tipo"] ?: "Tipo no especificado", style = MaterialTheme.typography.bodySmall)
+                    }
+                    //tipo
+
                 }
             }
         }
