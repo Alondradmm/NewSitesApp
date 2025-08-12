@@ -104,4 +104,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // RELOJ
+    implementation ("com.google.android.gms:play-services-wearable:19.0.0")
+
 }

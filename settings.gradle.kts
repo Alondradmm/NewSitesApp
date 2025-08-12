@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "NewSites"
 include(":app")
- 
+include(":wear")
