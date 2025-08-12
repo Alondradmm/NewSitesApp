@@ -9,7 +9,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class DataStoreClass(private val context: Context) {
+class  DataStoreClass(private val context: Context) {
     // Creación del DataStore y sus variables
     companion object {
         private val LAST_LOGIN = stringPreferencesKey("last_login")

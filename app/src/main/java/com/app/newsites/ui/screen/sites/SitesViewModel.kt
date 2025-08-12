@@ -16,6 +16,9 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = FirebaseFirestore.getInstance()
 
+    private val _usuario = MutableStateFlow<Map<String, Any?>>(emptyMap())//
+    val usuario: StateFlow<Map<String, Any?>> = _usuario//
+
     private val _sites = MutableStateFlow<List<Map<String, String>>>(emptyList())
     val sites: StateFlow<List<Map<String, String>>> = _sites
 
