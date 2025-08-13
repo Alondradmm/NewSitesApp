@@ -4,33 +4,70 @@ import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Store
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -49,7 +86,12 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.maps.android.compose.*
+import com.google.firebase.firestore.GeoPoint
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -74,13 +116,32 @@ fun MapScreen(
     LaunchedEffect(Unit) {
         if (!emailUsuario.isNullOrBlank()) {
             viewModel.obtenerLugaresVolley(context, emailUsuario)
+            viewModel.cargarUsuario(emailUsuario)
         } else {
             Log.e("MAP_ERROR", "Email del usuario es nulo o vacío")
 
         }
+
+        while (true) {
+            try {
+                val location = fusedLocationClient
+                    .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                    .await()
+
+                if (location != null) {
+                    //cameraPositionState.move(CameraUpdateFactory.newLatLng(LatLng(location.latitude, location.longitude)))
+                    viewModel.procesarUbicacion(location.latitude, location.longitude, context)
+                }
+            } catch (e: SecurityException) {
+                Log.e("MAP_ERROR", "No se autorizó el servicio de ubicación")
+            }
+            delay(5000)
+        }
     }
 
     val recommendedSites by viewModel.sitios.collectAsState()
+    val sitesState = viewModel.sites.collectAsState()
+
 
     // Manejo de ubicación
     LaunchedEffect(locationPermission.status.isGranted) {
@@ -119,9 +180,9 @@ fun MapScreen(
     val maxHeightPx = maxHeightDp.value * density
     val minHeightPx = minHeightDp.value * density
     val maxOffset = maxHeightPx - minHeightPx
-    val slideOffset = remember { Animatable(0f) }
+    val slideOffset = remember { Animatable(maxOffset) }
     val coroutineScope = rememberCoroutineScope()
-    var isExpanded by remember { mutableStateOf(true) }
+    var isExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -180,6 +241,9 @@ fun MapScreen(
                     isMyLocationEnabled = locationPermission.status.isGranted,
                     mapStyleOptions = if (isDarkTheme) MapStyleOptions.loadRawResourceStyle(context, R.raw.map_dark) else null
                 ),
+                contentPadding = PaddingValues(
+                    bottom = minHeightDp
+                ),
                 onMapLoaded = {
                     isMapLoaded = true
                     userLocation?.let {
@@ -187,14 +251,6 @@ fun MapScreen(
                     }
                 }
             ) {
-                userLocation?.let {
-                    Marker(
-                        state = rememberMarkerState(position = it),
-                        title = "Tu ubicación",
-                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
-                    )
-                }
-
                 recommendedSites.forEach { site ->
                     if (site.coords.size >= 2) {
                         Marker(
@@ -213,34 +269,109 @@ fun MapScreen(
                         )
                     }
                 }
+
+                sitesState.value.forEach() { site ->
+                    val geoPoint = site["coords"] as? GeoPoint
+                    val nombre = site["nombre"] as? String
+
+                    if (geoPoint != null){
+                        val latLng = LatLng(geoPoint.latitude, geoPoint.longitude)
+                        Marker(
+                            state = rememberMarkerState(position = latLng),
+                            title = nombre
+                        )
+                    }
+
+                }
             }
 
             // Card superior
-            Card(
+
+            val user = viewModel.usuario.collectAsState()
+            val progress = viewModel.progress.collectAsState()
+            val showProgress = viewModel.showProgress.collectAsState()
+            Box(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.TopCenter),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                    .align(Alignment.TopCenter)
+                    .wrapContentWidth()
+                    .padding(horizontal = 100.dp, vertical = 10.dp),
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.newsites),
-                        contentDescription = "Logo",
-                        modifier = Modifier.height(40.dp)
+                Column (
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Card(
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .wrapContentHeight()
+                            .fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(2.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .height(IntrinsicSize.Min) // Permite que los hijos (Box) se estiren en altura
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .background(Color.Red)
+                                    .width(60.dp)
+                                    .fillMaxHeight(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Star,
+                                    contentDescription = "Logo",
+                                    modifier = Modifier.size(30.dp),
+                                    tint = Color.White
+                                )
+                            }
+
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier.padding(6.dp)
+                            ) {
+                                Text(
+                                    text = "Site Points",
+                                    fontFamily = FontFamily(Font(R.font.alata)),
+                                    fontSize = 20.sp,
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = user.value["points"].toString(),
+                                    fontFamily = FontFamily(Font(R.font.alata)),
+                                    fontSize = 20.sp,
+                                    color = Color.Red,
+                                )
+                            }
+                        }
+
+                    }
+
+                    val animatedProgress by animateFloatAsState(
+                        targetValue = progress.value,
+                        animationSpec = tween(durationMillis = 1000), // duración de la animación
+                        label = "AnimatedProgress"
                     )
-                    Text(
-                        text = "SP: 1000",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        fontSize = 20.sp,
-                        color = Color(0xFFE53935)
+
+                    val targetAlpha = if (showProgress.value) 1f else 0f
+                    val animatedAlpha by animateFloatAsState(
+                        targetValue = targetAlpha,
+                        animationSpec = tween(durationMillis = 500) // Duración de la animación
+                    )
+
+                    LinearProgressIndicator(
+                        progress = { animatedProgress },
+                        color = Color(0xFFE53935),
+                        trackColor = Color.White,
+                        modifier = Modifier
+                            .height(8.dp)
+                            .alpha(animatedAlpha)
+                            .fillMaxWidth()
                     )
                 }
             }
+
 
             // Panel deslizable inferior - MEJORADO
             Box(
@@ -307,6 +438,7 @@ fun MapScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp),
+                                    contentPadding = PaddingValues(bottom = 12.dp),
                                     verticalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     items(recommendedSites) { site ->
@@ -326,7 +458,7 @@ fun MapScreen(
                                                 // Contenido de información (si no hay imagen ocupa todo el espacio)
                                                 Column(
                                                     modifier = Modifier
-                                                        .weight(if (site.img.isNullOrEmpty()) 1f else 2f) // Ajusta el peso según si hay imagen
+                                                        .weight(if (site.img.isEmpty()) 1f else 2f) // Ajusta el peso según si hay imagen
                                                         .fillMaxHeight()
                                                         .padding(12.dp),
                                                     verticalArrangement = Arrangement.SpaceBetween
@@ -372,7 +504,7 @@ fun MapScreen(
                                                 }
 
                                                 // Mostrar imagen SOLO si está disponible
-                                                if (!site.img.isNullOrEmpty()) {
+                                                if (site.img.isNotEmpty()) {
                                                     Box(
                                                         modifier = Modifier
                                                             .weight(1f)

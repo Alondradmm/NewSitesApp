@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,34 +23,40 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.rounded.AddLocationAlt
 import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -61,8 +68,6 @@ import androidx.navigation.NavController
 import com.app.newsites.R
 import com.app.newsites.data.DataStoreClass
 import kotlinx.coroutines.flow.first
-import me.saket.swipe.SwipeAction
-import me.saket.swipe.SwipeableActionsBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -411,12 +416,6 @@ fun HomeScreen(
                     fontSize = 20.sp,
                 )
 
-                val delete = SwipeAction(
-                    icon = rememberVectorPainter(Icons.Default.Delete),
-                    background = Color.Red,
-                    onSwipe = { }
-                )
-
                 LazyColumn (
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     contentPadding = PaddingValues(bottom = 10.dp)
@@ -433,51 +432,91 @@ fun HomeScreen(
                                     elevation = CardDefaults.cardElevation(2.dp)
                                 )
                                 {
-                                    SwipeableActionsBox (
-                                        startActions = listOf(delete),
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(IntrinsicSize.Min),
+                                        verticalAlignment = Alignment.CenterVertically
                                     ){
-                                        Row(
+                                        Box (
                                             modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(IntrinsicSize.Min),
-                                            verticalAlignment = Alignment.CenterVertically
+                                                .background(Color.Red)
+                                                .width(80.dp)
+                                                .fillMaxHeight()
+                                        )
+                                        Column (
+                                            modifier = Modifier
+                                                .weight(7f)
+                                                .padding(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(5.dp),
                                         ){
-                                            Box (
-                                                modifier = Modifier
-                                                    .background(Color.Red)
-                                                    .width(80.dp)
-                                                    .fillMaxHeight()
+                                            Text(
+                                                text = site["nombre"].toString(),
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Bold
                                             )
-                                            Column (
-                                                modifier = Modifier
-                                                    .weight(7f)
-                                                    .padding(8.dp),
-                                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(5.dp),
                                             ){
-                                                Text(
-                                                    text = site["nombre"].toString(),
-                                                    fontSize = 16.sp,
-                                                    fontWeight = FontWeight.Bold
+                                                Icon(
+                                                    imageVector = Icons.Default.Star,
+                                                    contentDescription = "Ícono",
+                                                    modifier = Modifier
+                                                        .size(10.dp)
+                                                        .fillMaxHeight()
                                                 )
 
-                                                Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                                ){
-                                                    Icon(
-                                                        imageVector = Icons.Default.Info,
-                                                        contentDescription = "Ícono",
-                                                        modifier = Modifier
-                                                            .size(10.dp)
-                                                            .fillMaxHeight()
-                                                    )
-
-                                                    Text(
-                                                        text = site["descripcion"].toString(),
-                                                        fontSize = 14.sp,
-                                                    )
-                                                }
+                                                Text(
+                                                    text = site["rate"].toString(),
+                                                    fontSize = 14.sp,
+                                                )
                                             }
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                            ){
+                                                Icon(
+                                                    imageVector = Icons.Default.Info,
+                                                    contentDescription = "Ícono",
+                                                    modifier = Modifier
+                                                        .size(10.dp)
+                                                        .fillMaxHeight()
+                                                )
+
+                                                Text(
+                                                    text = site["descripcion"].toString(),
+                                                    fontSize = 14.sp,
+                                                )
+                                            }
+                                        }
+
+                                        var showDialog by remember { mutableStateOf(false) }
+
+                                        IconButton(
+                                            onClick = {showDialog = true},
+                                            enabled = site["rate"].toString() == "0"
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Rounded.Star,  // O el icono que quieras
+                                                contentDescription = "Rate"
+                                            )
+                                        }
+
+                                        if (showDialog) {
+                                            RateDialog(
+                                                onDismiss = { showDialog = false },
+                                                sendRate = { rating ->
+                                                    // rating viene directamente del RateDialog
+                                                    viewModel.sendRate(
+                                                        site["id"].toString(),
+                                                        site["index"].toString().toInt(),
+                                                        rate = rating.toDouble(),          // <- aquí lo envías
+                                                        userEmail
+                                                    )
+                                                    showDialog = false
+                                                }
+                                            )
                                         }
                                     }
                                 }
@@ -547,5 +586,71 @@ fun HomeScreen(
     }
 
 
+}
+
+@Composable
+fun RateDialog(
+    initialRating: Int = 0,
+    onDismiss: () -> Unit,
+    sendRate: (Int) -> Unit    // <- debe aceptar un Int
+) {
+    var rating by remember { mutableStateOf(initialRating.coerceIn(0, 5)) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Califica Visita") },
+        text = {
+            Column {
+                Text("¿Qué te pareció?")
+                Spacer(Modifier.height(12.dp))
+                RatingBar(
+                    rating = rating,
+                    onRate = { rating = it }
+                )
+                Spacer(Modifier.height(8.dp))
+                Text("$rating / 5")
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    sendRate(rating)  // ahora coincide con la firma
+                }
+            ) {
+                Text("Aceptar") // o "Enviar"
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+
+@Composable
+fun RatingBar(
+    rating: Int,
+    max: Int = 5,
+    onRate: (Int) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        for (i in 1..max) {
+            IconButton(
+                onClick = { onRate(i) },
+                modifier = Modifier.size(42.dp)
+            ) {
+                Icon(
+                    imageVector = if (i <= rating) Icons.Outlined.Star  else Icons.Default.StarBorder,
+                    contentDescription = "Calificación $i",
+                    tint = Color(0xFFFFC107),
+                )
+            }
+        }
+    }
 }
 
