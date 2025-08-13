@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,12 +14,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +66,12 @@ fun AgregarSiteScreen(
     var lastAddress by remember { mutableStateOf<String?>(null) }
 
     var ubicacionActual by remember { mutableStateOf<LatLng?>(null) }
+    val tipos = listOf("Naturaleza", "Cultura", "Gastronomía", "Aventura")
+    var tipoSeleccionado by remember { mutableStateOf("") }
+
+    val user = viewModel.usuario.collectAsState()
+    val userId = user.value["email"]?.toString() ?: ""
+
 
     LaunchedEffect(locationPermission.status.isGranted) {
         if (locationPermission.status.isGranted) {
@@ -152,6 +161,13 @@ fun AgregarSiteScreen(
                 label = { Text("Ubicación") },
                 modifier = Modifier.fillMaxWidth()
             )
+            OutlinedTextField(
+                value = tipoSeleccionado,
+                onValueChange = { tipoSeleccionado = it },
+                label = { Text("Tipo de sitio") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
 
             GoogleMap(
                 modifier = Modifier.weight(1f),
@@ -192,6 +208,8 @@ fun AgregarSiteScreen(
                         ),
                         descripcion = descripcion,
                         img = img,
+                        tipo = tipoSeleccionado,
+                        owner = userId,
                         onSuccess = {
                             Toast.makeText(context, "Sitio guardado", Toast.LENGTH_SHORT).show()
                             navController.popBackStack()

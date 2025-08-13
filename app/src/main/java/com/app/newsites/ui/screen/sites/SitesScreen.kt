@@ -14,16 +14,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Nature
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.Terrain
 import androidx.compose.material.icons.rounded.AddLocationAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -171,8 +176,7 @@ fun SitesScreen(
                 SiteItem(
                     site = site,
                     onEdit = {
-                        // Acción editar
-                        // agregar despues cuando no este muerto de sueño
+
                         val id = site["id"]
                         navController?.navigate("editSite/${site["id"]}")
                     },
@@ -301,6 +305,27 @@ fun SiteItem(
                         Icon(Icons.Default.Info, contentDescription = "Descripción", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(site["descripcion"] ?: "Descripción", style = MaterialTheme.typography.bodySmall)
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val tipo = site["tipo"] ?: "Desconocido"
+                        val iconoTipo = when (tipo) {
+                            "Naturaleza" -> Icons.Default.Nature
+                            "Cultura" -> Icons.Default.AccountBalance
+                            "Gastronomía" -> Icons.Default.Restaurant
+                            "Aventura" -> Icons.Default.Terrain
+                            else -> Icons.Default.Category
+                        }
+                        Icon(
+                            iconoTipo,
+                            contentDescription = "Descripción",
+                            modifier = Modifier.size(16.dp)
+
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            site["tipo"] ?: "Tipo de sitio",
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                 }
             }

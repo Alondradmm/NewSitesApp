@@ -37,6 +37,7 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
     private fun obtenerSites(id: String) {
         db.collection("sites")
             .whereEqualTo("owner", id)
@@ -50,14 +51,16 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
                         val nombre = doc.getString("nombre")
                         val ubicacion = doc.get("direccion")?.toString()
                         val descripcion = doc.getString("descripcion")
+                        val tipo = doc.getString("tipo")
                         val img = doc.getString("img")
 
-                        if (nombre != null && ubicacion != null && descripcion != null && img != null ) {
+                        if (nombre != null && ubicacion != null && descripcion != null && img != null && tipo != null ) {
                             mapOf(
                                 "id" to id,
                                 "nombre" to nombre,
                                 "ubicacion" to ubicacion,
                                 "descripcion" to descripcion,
+                                "tipo" to tipo,
                                 "img" to img
                             )
                         } else {
@@ -68,13 +71,25 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
     }
-    fun agregarSite(nombre: String, ubicacion: String, descripcion: String, coords: GeoPoint, img: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    fun agregarSite(
+        nombre: String,
+        ubicacion: String,
+        descripcion: String,
+        coords: GeoPoint,
+        img: String,
+        tipo: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit,
+        owner: String
+    ) {
         val nuevoSite = hashMapOf(
             "nombre" to nombre,
             "direccion" to ubicacion,
             "coords" to coords,
             "descripcion" to descripcion,
-            "img" to img
+            "img" to img,
+            "tipo" to tipo,
+            "owner" to owner
         )
 
         db.collection("sites")
@@ -82,6 +97,7 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { exception -> onFailure(exception) }
     }
+
 
     fun eliminarSite(id: String, onSuccess: () -> Unit = {}, onFailure: (Exception) -> Unit = {}) {
         db.collection("sites")
@@ -91,6 +107,9 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
             .addOnFailureListener { exception -> onFailure(exception) }
     }
 
+    // agregar tipos al editar
+    val tipos = listOf("Naturaleza", "Cultura", "Gastronomía", "Aventura")
+
     fun editarSite(
         id: String,
         nombre: String,
@@ -98,7 +117,8 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
         descripcion: String,
         img: String,
         onSuccess: () -> Unit = {},
-        onFailure: (Exception) -> Unit = {}
+        onFailure: (Exception) -> Unit = {},
+
     ) {
         val nuevosDatos = mapOf(
             "nombre" to nombre,
