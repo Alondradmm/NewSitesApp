@@ -109,13 +109,15 @@ class HomeViewModel : ViewModel() {
     }
 
     fun sendRate(siteId: String, historyIndex: Int, rate: Double, userId: String) {
+        Log.d("RATING", "$siteId, $historyIndex, $rate, $userId")
         val db = FirebaseFirestore.getInstance()
         val docRef = db.collection("usuarios").document(userId)
 
         docRef.get().addOnSuccessListener { document ->
             if (document != null && document.exists()) {
                 val history = document.get("history") as? MutableList<Map<String, Any>>
-                if (history != null && history.size > 1) {
+                Log.d("RATING", history.toString())
+                if (history != null && history.size >= 1) {
                     // Clona el map en la posición 1 y actualiza el "rate"
                     val updatedItem = history[historyIndex].toMutableMap()
                     updatedItem["rate"] = rate

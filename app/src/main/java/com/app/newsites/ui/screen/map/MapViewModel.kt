@@ -188,7 +188,7 @@ class MapViewModel : ViewModel() {
                             .document(it["id"].toString())
                             .get()
                             .addOnSuccessListener { doc ->
-                                sitePoints = 100 + (doc.getLong("totalRate") ?: 0)/(doc.getLong("visitasCalificadas") ?: 0)*100
+                                sitePoints = 100 + (doc.getLong("totalRate") ?: 0)/(doc.getLong("visitasCalificadas") ?: 1)*100
                                 val allSites = SessionManager.userHistory.values.flatten().map { it.first }
                                 val isNewSite = if (allSites.contains(it["id"].toString())) 0L else 1L
                                 Log.d("NEW SITE", "El sitio es nuevo? $isNewSite")

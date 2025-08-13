@@ -4,23 +4,24 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
@@ -59,8 +60,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
@@ -263,31 +262,28 @@ fun SiteItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
+                    .height(IntrinsicSize.Min),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val imagenUrl = site["img"]
-                if (!imagenUrl.isNullOrBlank()) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(imagenUrl)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "Imagen del sitio",
-                        modifier = Modifier.size(64.dp)
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .background(Color(0xFFD32F2F))
-                    )
-                }
+                Box(
+                    modifier = Modifier
+                        .width(16.dp)
+                        .background(
+                            when (site["tipo"]?.lowercase()) {
+                                "naturaleza" -> Color(0xFF8BC34A)
+                                "cultura" -> Color(0xFFFF9800)
+                                "gastronomia" -> Color(0xFFF44336)
+                                "aventura" -> Color(0xFF2196F3)
+                                else -> Color.Red
+                            }
+                        )
+                        .fillMaxHeight()
+                )
 
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 12.dp)
+                        .padding(12.dp)
                 ) {
                     Text(
                         text = site["nombre"] ?: "Nombre de Site",

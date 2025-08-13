@@ -4,23 +4,17 @@ import android.content.Context
 import android.location.Geocoder
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,13 +23,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -73,7 +65,7 @@ fun AgregarSiteScreen(
 
 
     var ubicacion by remember { mutableStateOf("") }
-    var img by remember { mutableStateOf("") }
+    var img by remember { mutableStateOf("img.png") }
 
     val locationPermission = rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
@@ -190,12 +182,6 @@ fun AgregarSiteScreen(
             }
             //---------------
 
-            OutlinedTextField(
-                value = img,
-                onValueChange = { img = it },
-                label = { Text("URL de imagen") },
-                modifier = Modifier.fillMaxWidth()
-            )
             OutlinedTextField(
                 value = ubicacion,
                 onValueChange = { ubicacion = it },
