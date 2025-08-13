@@ -31,6 +31,7 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
             userId.collect { id ->
                 Log.d("USER_SITE", id) // Aquí sí obtendrás el valor real cuando se emita
                 if (id.isNotBlank()) {
+                    _usuario.value = mapOf("email" to id) // Actualiza _usuario con el valor real
                     obtenerSites(id)
                 }
             }
@@ -48,14 +49,16 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
                     val lista = snapshot.documents.mapNotNull { doc ->
                         val id = doc.id
                         val nombre = doc.getString("nombre")
+                        val tipo = doc.getString("tipo")
                         val ubicacion = doc.get("direccion")?.toString()
                         val descripcion = doc.getString("descripcion")
                         val img = doc.getString("img")
 
-                        if (nombre != null && ubicacion != null && descripcion != null && img != null ) {
+                        if (nombre != null && tipo != null && ubicacion != null && descripcion != null && img != null ) {
                             mapOf(
                                 "id" to id,
                                 "nombre" to nombre,
+                                "tipo" to tipo,
                                 "ubicacion" to ubicacion,
                                 "descripcion" to descripcion,
                                 "img" to img
@@ -68,13 +71,16 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
     }
-    fun agregarSite(nombre: String, ubicacion: String, descripcion: String, coords: GeoPoint, img: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    fun agregarSite(nombre: String, ubicacion: String, descripcion: String, coords: GeoPoint, img: String, tipo: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val ownerEmail = _usuario.value["email"]?.toString() ?: "" //para obtener el email del usuario actual
         val nuevoSite = hashMapOf(
             "nombre" to nombre,
             "direccion" to ubicacion,
             "coords" to coords,
             "descripcion" to descripcion,
-            "img" to img
+            "img" to img,
+            "tipo" to tipo,
+            "owner" to ownerEmail
         )
 
         db.collection("sites")
@@ -97,6 +103,7 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
         ubicacion: String,
         descripcion: String,
         img: String,
+        tipo: String,
         onSuccess: () -> Unit = {},
         onFailure: (Exception) -> Unit = {}
     ) {
@@ -104,7 +111,8 @@ class SitesViewModel(application: Application) : AndroidViewModel(application) {
             "nombre" to nombre,
             "direccion" to ubicacion,
             "descripcion" to descripcion,
-            "img" to img
+            "img" to img,
+            "tipo" to tipo
         )
 
         db.collection("sites")
