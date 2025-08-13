@@ -4,5 +4,7 @@
         <domain includeSubdomains="true">10.0.2.2</domain> <!-- para emulador -->
         <!-- <domain includeSubdomains="true">192.168.100.172</domain>  IPs locales -->
         <domain includeSubdomains="true">192.168.100.23</domain> <!-- IPs locales -->
+        <domain includeSubdomains="true">172.20.10.3</domain> <!-- IPs locales -->
+        <domain includeSubdomains="true">192.168.0.6</domain> <!-- IPs locales -->
     </domain-config>
 </network-security-config>
